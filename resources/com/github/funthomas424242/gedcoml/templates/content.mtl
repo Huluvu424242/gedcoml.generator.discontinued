@@ -10,7 +10,7 @@
       xmlns:xi="http://www.w3.org/2001/XInclude">
 
 <bookinfo>
-    <title>Buch zur Verwandtschaft</title>
+    <title>Familienbuch</title>
 
 	<authorgroup>
 	    <author>
@@ -43,11 +43,15 @@
 	<preface>
 		<title>Vorwort</title>
 	
-	    <para>Dieses Buch ist eine Zusammenfassung aller aktuell bekannten Verwandten.</para>
+	    <para>Bei dem vorliegenden Werk handelt es sich um ein Familienbuch im
+              Sinne der Genealogy und nicht im Sinne der deutschen Gesetzbücher.</para>
 	</preface>
 
 
 <toc/>
+
+<chapter>
+<title>Familien</title>
 
 [for (imp : FamilyImport | project.imports)]
 	[let importIndex : Integer = project.imports->indexOf(imp)]
@@ -55,17 +59,18 @@
 	[/let]
 [/for]
   
+</chapter>
 </book>
 [/file]
 	
 [/template]
 
 [template public createChapter(project:Projectdescription,family : Family, parentIndex : String)]
-<chapter>
-    <title>Familie [family.name/]</title>
+
+    
 	<xi:include href="Family[parentIndex/].dbk" />
 	[createSection(project,family,parentIndex) /]
-</chapter>
+
 [/template]
 
 [template public createSection(project: Projectdescription, family: Family, familyIndex : String )]
@@ -79,7 +84,7 @@
 			         xmlns:ns3="http://www.w3.org/1999/xhtml"
 			         xmlns:db="http://docbook.org/ns/docbook">
 
-<title>Mitglieder der Familie</title>
+<title>Familie [family.name/]</title>
 
 [for (person : Person | family.members)]
 
@@ -121,9 +126,9 @@
 		    </variablelist>
 		</para>
 	
-		<section> 
-			<title>Adressen</title>
-	 	
+		<para> 
+			<emphasis role="bold">Adressen</emphasis>
+
 			<para>
 			  <simplelist type="vert">
 				[for (address : Address | person.addresses)]
@@ -149,21 +154,7 @@
 				[/for]
 		      </simplelist>
 			</para>
-		</section>
-	
-	    <section>
-			<title>Sonstiges</title>
-		    <para>
-			  <itemizedlist>
-		        <listitem>
-		          <para>Punkt</para>
-		        </listitem>
-		        <listitem>
-		          <para>Punkt</para>
-		        </listitem>
-		      </itemizedlist>
-			</para>
-	    </section>
+		</para>
 	
 	</section>
 	[/for]
