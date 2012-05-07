@@ -1,6 +1,7 @@
 [comment encoding = UTF-8 /]
 [module content('http://com.github.funthomas424242/language/gedcoml')/]
 [import com::github::funthomas424242::gedcoml::templates::queries /]
+[import com::github::funthomas424242::gedcoml::services::utils /]
 
 [template public createContent(project : Projectdescription)]
 [file (projectPath(project)+'/src/main/docbkx/book.dbk', false, 'UTF-8')]
@@ -29,7 +30,7 @@
     	</author>
 	</authorgroup>
 
-	<pubdate>[project.publishingDate/]</pubdate>
+	<pubdate>[getDateValue(project.publishingDate)/]</pubdate>
 
 	<copyright>
       <year>
@@ -97,9 +98,9 @@
 			 <member>Vorname: <emphasis role="bold">[person.firstName/]</emphasis></member>
 			 <member>Mittelname: <emphasis role="bold">[person.middleName/]</emphasis></member>
 			 <member>Nachname: <emphasis role="bold">[person.lastName/]</emphasis></member>
-			 <member>Geschlecht: <emphasis role="bold">[person.sex/]</emphasis></member>
-			 <member>Tag der Geburt: <emphasis role="bold">[person.birthDay/]</emphasis></member>
-			 <member>Tag des Todes: <emphasis role="bold">[person.deathDay/]</emphasis></member>
+			 <member>Geschlecht: <emphasis role="bold">[getSexus(person.sex)/]</emphasis></member>
+			 <member>Tag der Geburt: <emphasis role="bold">[getDateValue(person.birthDay)/]</emphasis></member>
+			 <member>Tag des Todes: <emphasis role="bold">[getDateValue(person.deathDay)/]</emphasis></member>
 			</simplelist>
 		</para>
 
@@ -108,26 +109,44 @@
 				<varlistentry>
 			    <term>Biologischer Vater</term>
 				<listitem>
-				  <para><link linkend="[person.biologicalFatherIs.id/]">[person.biologicalFatherIs.id/]</link>		
+				  <para>
+				  <simplelist>
+					<member>
+					<link linkend="[person.biologicalFatherIs.id/]">[person.biologicalFatherIs.id/]</link>
+					</member>	
+					<member>
 					[person.biologicalFatherIs.lastName/], [person.biologicalFatherIs.firstName/] 
-					([person.biologicalFatherIs.birthDay/])
+					</member>
+					<member>
+					([getDateValue(person.biologicalFatherIs.birthDay)/] - [getDateValue(person.biologicalFatherIs.deathDay)/])
+					</member>
+				  </simplelist>
 			      </para>
 				</listitem>
 				</varlistentry>
 			<varlistentry>
 			    <term>Biologische Mutter</term>
 				<listitem>
-				  <para><link linkend="[person.biologicalMotherIs.id/]">[person.biologicalMotherIs.id/]</link>		
-					[person.biologicalMotherIs.lastName/], [person.biologicalMotherIs.firstName/] 
-					([person.biologicalMotherIs.birthDay/])
-			      </para>
+				  <simplelist>
+				  <member>
+				  <link linkend="[person.biologicalMotherIs.id/]">[person.biologicalMotherIs.id/]</link>		
+				  </member>
+				  <member>
+					[getName(person.biologicalMotherIs.firstName,person.biologicalMotherIs.lastName)/]
+				  </member> 
+				  <member>
+					([getDateValue(person.biologicalMotherIs.birthDay)/])
+  				  </member>
+			      </simplelist>
 				</listitem>
 				</varlistentry>
 		    </variablelist>
 		</para>
 	
+		[if ( not isEmpty(person.addresses))]
 		<para> 
 			<emphasis role="bold">Adressen</emphasis>
+
 
 			<para>
 			  <simplelist type="vert">
@@ -136,15 +155,10 @@
 					[if (address.oclIsKindOf(PostAddress))]
 					[let postaddress : PostAddress = address.oclAsType(PostAddress)]
 						<member>
-								von
-								[if ((not postaddress.entry.oclIsUndefined() )and (not postaddress.entry.startsWith('<missing') ) )]
-									<emphasis role="bold">[postaddress.entry/]</emphasis>
-								[/if] 
-
+								von			
+								<emphasis role="bold">[getDateValue(postaddress.entry)/]</emphasis>
 								bis
-								[if (not postaddress.exodus.oclIsUndefined())]
-									<emphasis role="bold">[postaddress.exodus/]</emphasis>
-								[/if] 
+								<emphasis role="bold">[getDateValue(postaddress.exodus)/]</emphasis> 
 						  <emphasis role="italic">
 					        [postaddress.street/],  [postaddress.postcode/],  [postaddress.city/]
 					      </emphasis>
@@ -155,7 +169,8 @@
 		      </simplelist>
 			</para>
 		</para>
-	
+		[/if]
+
 	</section>
 	[/for]
 </section>
