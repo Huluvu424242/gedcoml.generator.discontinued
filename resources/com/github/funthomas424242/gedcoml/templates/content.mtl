@@ -1,6 +1,7 @@
 [comment encoding = UTF-8 /]
 [module content('http://com.github.funthomas424242/language/gedcoml')/]
 [import com::github::funthomas424242::gedcoml::templates::queries /]
+[import com::github::funthomas424242::gedcoml::services::utils /]
 
 [template public createContent(project : Projectdescription)]
 [file (projectPath(project)+'/src/main/docbkx/book.dbk', false, 'UTF-8')]
@@ -10,7 +11,7 @@
       xmlns:xi="http://www.w3.org/2001/XInclude">
 
 <bookinfo>
-    <title>Buch zur Verwandtschaft</title>
+    <title>Familienbuch</title>
 
 	<authorgroup>
 	    <author>
@@ -29,7 +30,7 @@
     	</author>
 	</authorgroup>
 
-	<pubdate>[project.publishingDate/]</pubdate>
+	<pubdate>[getDateValue(project.publishingDate)/]</pubdate>
 
 	<copyright>
       <year>
@@ -43,11 +44,15 @@
 	<preface>
 		<title>Vorwort</title>
 	
-	    <para>Dieses Buch ist eine Zusammenfassung aller aktuell bekannten Verwandten.</para>
+	    <para>Bei dem vorliegenden Werk handelt es sich um ein Familienbuch im
+              Sinne der Genealogy und nicht im Sinne der deutschen Gesetzbücher.</para>
 	</preface>
 
 
 <toc/>
+
+<chapter>
+<title>Familien</title>
 
 [for (imp : FamilyImport | project.imports)]
 	[let importIndex : Integer = project.imports->indexOf(imp)]
@@ -55,17 +60,18 @@
 	[/let]
 [/for]
   
+</chapter>
 </book>
 [/file]
 	
 [/template]
 
 [template public createChapter(project:Projectdescription,family : Family, parentIndex : String)]
-<chapter>
-    <title>Familie [family.name/]</title>
+
+    
 	<xi:include href="Family[parentIndex/].dbk" />
 	[createSection(project,family,parentIndex) /]
-</chapter>
+
 [/template]
 
 [template public createSection(project: Projectdescription, family: Family, familyIndex : String )]
@@ -79,9 +85,14 @@
 			         xmlns:ns3="http://www.w3.org/1999/xhtml"
 			         xmlns:db="http://docbook.org/ns/docbook">
 
-<title>Mitglieder der Familie</title>
+<title>Familie [family.name/]</title>
 
-[for (person : Person | family.members)]
+[for (personMember : Person | family.members)]
+	[if (personMember.oclIsTypeOf(BekanntePerson) )]
+	[let person : BekanntePerson = personMember.oclAsType(BekanntePerson)]
+
+	
+
 
 	<section>
 	<title><anchor id='[person.id/]'/>[person.id/]</title>
@@ -92,9 +103,9 @@
 			 <member>Vorname: <emphasis role="bold">[person.firstName/]</emphasis></member>
 			 <member>Mittelname: <emphasis role="bold">[person.middleName/]</emphasis></member>
 			 <member>Nachname: <emphasis role="bold">[person.lastName/]</emphasis></member>
-			 <member>Geschlecht: <emphasis role="bold">[person.sex/]</emphasis></member>
-			 <member>Tag der Geburt: <emphasis role="bold">[person.birthDay/]</emphasis></member>
-			 <member>Tag des Todes: <emphasis role="bold">[person.deathDay/]</emphasis></member>
+			 <member>Geschlecht: <emphasis role="bold">[getSexus(person.sex)/]</emphasis></member>
+			 <member>Tag der Geburt: <emphasis role="bold">[getDateValue(person.birthDay)/]</emphasis></member>
+			 <member>Tag des Todes: <emphasis role="bold">[getDateValue(person.deathDay)/]</emphasis></member>
 			</simplelist>
 		</para>
 
@@ -103,27 +114,53 @@
 				<varlistentry>
 			    <term>Biologischer Vater</term>
 				<listitem>
-				  <para><link linkend="[person.biologicalFatherIs.id/]">[person.biologicalFatherIs.id/]</link>		
-					[person.biologicalFatherIs.lastName/], [person.biologicalFatherIs.firstName/] 
-					([person.biologicalFatherIs.birthDay/])
+				  <para>
+				  <simplelist>
+					<member>
+					<link linkend="[person.biologicalFatherIs.id/]">[person.biologicalFatherIs.id/]</link>
+					</member>	
+					[if (person.biologicalFatherIs.oclIsTypeOf(BekanntePerson))]
+						[let father : BekanntePerson = person.biologicalFatherIs.oclAsType(BekanntePerson)]
+						<member>
+						[father.lastName/], [father.firstName/] 
+						</member>
+						<member>
+						([getDateValue(father.birthDay)/] - [getDateValue(father.deathDay)/])
+						</member>
+						[/let]
+					[/if]
+				  </simplelist>
 			      </para>
 				</listitem>
 				</varlistentry>
 			<varlistentry>
 			    <term>Biologische Mutter</term>
 				<listitem>
-				  <para><link linkend="[person.biologicalMotherIs.id/]">[person.biologicalMotherIs.id/]</link>		
-					[person.biologicalMotherIs.lastName/], [person.biologicalMotherIs.firstName/] 
-					([person.biologicalMotherIs.birthDay/])
-			      </para>
+				  <simplelist>
+				  <member>
+				  <link linkend="[person.biologicalMotherIs.id/]">[person.biologicalMotherIs.id/]</link>		
+				  </member>
+				  [if (person.biologicalMotherIs.oclIsTypeOf(BekanntePerson))]
+					  [let mother : BekanntePerson = person.biologicalMotherIs.oclAsType(BekanntePerson)]
+					  <member>
+						[getName(mother.firstName,mother.lastName)/]
+					  </member> 
+					  <member>
+						([getDateValue(mother.birthDay)/])
+	  				  </member>
+				      [/let]
+					[/if]
+			      </simplelist>
 				</listitem>
 				</varlistentry>
 		    </variablelist>
 		</para>
 	
-		<section> 
-			<title>Adressen</title>
-	 	
+		[if ( not isEmpty(person.addresses))]
+		<para> 
+			<emphasis role="bold">Adressen</emphasis>
+
+
 			<para>
 			  <simplelist type="vert">
 				[for (address : Address | person.addresses)]
@@ -131,15 +168,10 @@
 					[if (address.oclIsKindOf(PostAddress))]
 					[let postaddress : PostAddress = address.oclAsType(PostAddress)]
 						<member>
-								von
-								[if ((not postaddress.entry.oclIsUndefined() )and (not postaddress.entry.startsWith('<missing') ) )]
-									<emphasis role="bold">[postaddress.entry/]</emphasis>
-								[/if] 
-
+								von			
+								<emphasis role="bold">[getDateValue(postaddress.entry)/]</emphasis>
 								bis
-								[if (not postaddress.exodus.oclIsUndefined())]
-									<emphasis role="bold">[postaddress.exodus/]</emphasis>
-								[/if] 
+								<emphasis role="bold">[getDateValue(postaddress.exodus)/]</emphasis> 
 						  <emphasis role="italic">
 					        [postaddress.street/],  [postaddress.postcode/],  [postaddress.city/]
 					      </emphasis>
@@ -149,23 +181,13 @@
 				[/for]
 		      </simplelist>
 			</para>
-		</section>
-	
-	    <section>
-			<title>Sonstiges</title>
-		    <para>
-			  <itemizedlist>
-		        <listitem>
-		          <para>Punkt</para>
-		        </listitem>
-		        <listitem>
-		          <para>Punkt</para>
-		        </listitem>
-		      </itemizedlist>
-			</para>
-	    </section>
-	
+		</para>
+		[/if]
+
 	</section>
+	
+		[/let]
+		[/if] 
 	[/for]
 </section>
    

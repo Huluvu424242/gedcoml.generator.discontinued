@@ -1,0 +1,15 @@
+[comment encoding = UTF-8 /]
+[module makefiles('http://com.github.funthomas424242/language/gedcoml')/]
+[import com::github::funthomas424242::gedcoml::templates::queries /]
+
+[template public createMakefiles(project : Projectdescription)]
+[file (projectPath(project)+'/build.bat', false, 'UTF-8')]
+call mvn clean site
+pause
+[/file]
+	
+[file (projectPath(project)+'/build.sh', false, 'UTF-8')]
+#!/bin/sh
+mvn clean site
+[/file]
+[/template]

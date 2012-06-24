@@ -3,14 +3,15 @@
 [import com::github::funthomas424242::gedcoml::templates::queries /]
 [import com::github::funthomas424242::gedcoml::templates::content /]
 [import com::github::funthomas424242::gedcoml::templates::pom /]
+[import com::github::funthomas424242::gedcoml::templates::makefiles /]
 [import com::github::funthomas424242::gedcoml::templates::readme /]
 [import com::github::funthomas424242::gedcoml::templates::resources /]
 
-[template public main(project : Projectdescription)]
+[template public main(project : Projectdescription)] 
 [comment @main /]
 
 [createReadme(project) /]
-
+[createMakefiles(project)/]
 [createPOM(project) /] 
 [createContent(project) /]
 [createResources(project) /]
