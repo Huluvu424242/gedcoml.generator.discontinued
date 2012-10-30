@@ -2,6 +2,7 @@ package com.github.funthomas424242.gedcoml.services;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Properties;
 
 public class Utils {
 
@@ -58,4 +59,9 @@ public class Utils {
 		return lastName+", "+firstName;
 	}
 	
+	public String getBaseDir(Object obj){
+		final Properties props=System.getProperties();
+		//return props.getProperty("basedir");
+		return props.getProperty("java.home");
+	}
 }

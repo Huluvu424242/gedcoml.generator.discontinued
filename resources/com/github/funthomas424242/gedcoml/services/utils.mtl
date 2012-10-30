@@ -10,4 +10,6 @@
 [query public getName(firstName : OclAny, lastName :OclAny) : String
 	= invoke('com.github.funthomas424242.gedcoml.services.Utils', 
 'getName(java.lang.String, java.lang.String)', Sequence{firstName, lastName}) /]
+[query public getBaseDir(arg0:OclAny) : String
+	= invoke('com.github.funthomas424242.gedcoml.services.Utils', 'getBaseDir(java.lang.Object)',Sequence{arg0} ) /]
 
